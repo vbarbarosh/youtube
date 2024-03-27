@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/reset.css" rel="stylesheet">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/sm.css" rel="stylesheet">
+    <title>Title of the Page</title>
+</head>
+<body>
+
+<br>
+
+<div id="app"></div>
+
+<script src="https://unpkg.com/jquery@3.7.0/dist/jquery.js"></script>
+<script src="https://unpkg.com/bluebird@3.7.2/js/browser/bluebird.js"></script>
+<script src="https://unpkg.com/vue@2.7.14/dist/vue.js"></script>
+<script>
+Vue.component('input-files', {
+    props: ['value'],
+    template: `
+        <div v-on:dragover="dragover" v-on:dragleave="dragleave" v-on:drop="drop" v-bind:class="{green: is_allowed, red: is_disallowed}" class="flex-col-center min-h200 dashed" style="border-width:3px;">
+            <h2 class="flex-row-center">
+                Drop files here
+            </h2>
+            <div class="oa max-ww max-hh">
+                <table v-if="(value && value.length)">
+                    <tr v-for="file in value">
+                        <td><button v-on:click="click_remove(file)">✗</button></td>
+                        <td><img-file v-bind:value="file" class="max-w50 max-h50" /></td>
+                        <td>{{ file.name }}</td>
+                        <td>{{ file.size }}</td>
+                        <td>{{ file.type }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    `,
+    data: function () {
+        return {
+            dragfiles: null,
+        };
+    },
+    computed: {
+        is_allowed: function () {
+            return this.dragfiles && (this.dragfiles.length > 0);
+        },
+        is_disallowed: function () {
+            return this.dragfiles && (this.dragfiles.length === 0);
+        },
+    },
+    methods: {
+        dragover: function (event) {
+            event.preventDefault();
+            // At this stage only `kind` and `type` attributes are allowed. Reading content
+            // of a file will be allowed at `drop` event only.
+            this.dragfiles = [...event.dataTransfer.items].filter(v => v.kind === 'file');
+        },
+        dragleave: function (event) {
+            this.dragfiles = null;
+        },
+        drop: function (event) {
+            event.preventDefault();
+            this.dragfiles = null;
+            const files = [...event.dataTransfer.files];
+            if (files.length) {
+                this.$emit('input', files);
+            }
+        },
+        click_remove: function (file) {
+            const i = this.value.indexOf(file);
+            if (i !== -1) {
+                this.value.splice(i, 1);
+            }
+        }
+    },
+});
+
+const ___img_files = [];
+___img_files.gc = function () {
+    while (___img_files.length) {
+        const i = ___img_files.findIndex(v => v.refs <= 0);
+        if (i === -1) {
+            break;
+        }
+        console.log('revokeObjectURL', ___img_files[i], ___img_files.length - 1);
+        URL.revokeObjectURL(___img_files[i].url);
+        ___img_files.splice(i, 1);
+    }
+};
+
+Vue.component('img-file', {
+    props: ['value'],
+    template: `<img v-bind:src="url" />`,
+    data: function () {
+        const blank = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        return {
+            blank,
+            url: blank,
+        };
+    },
+    watch: {
+        value: {
+            immediate: true,
+            handler: function (next, prev) {
+                (___img_files.find(v => v.file === prev)||0).refs--;
+                const i = ___img_files.findIndex(v => v.file === next);
+                switch ((this.value||0).type) {
+                case 'image/bmp':
+                case 'image/gif':
+                case 'image/jpeg':
+                case 'image/png':
+                case 'image/svg+xml':
+                case 'image/vnd.microsoft.icon':
+                case 'image/webp':
+                case 'image/x-icon':
+                case 'image/x-win-bitmap':
+                    if (i === -1) {
+                        const url = URL.createObjectURL(this.value);
+                        ___img_files.push({file: this.value, refs: 1, url});
+                        this.url = url;
+                    }
+                    else {
+                        ___img_files[i].refs++;
+                        this.url = ___img_files[i].url;
+                    }
+                    break;
+                default:
+                    this.url = this.blank;
+                }
+                Vue.nextTick(___img_files.gc);
+            },
+        },
+    },
+    beforeDestroy: function () {
+        const i = ___img_files.findIndex(v => v.file === this.value);
+        if (i !== -1) {
+            ___img_files[i].refs--;
+            ___img_files.gc();
+        }
+    },
+});
+
+new Vue({
+    el: '#app',
+    template: `
+        <div class="p5 w800 ma bs5">
+            <input-files v-model="files" />
+            <div>
+                <img-file v-for="file in files" v-bind:value="file" class="max-w200 max-h200" />
+            </div>
+        </div>
+    `,
+    data: {
+        files: [],
+    },
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/reset.css" rel="stylesheet">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/sm.css" rel="stylesheet">
+    <title>Title of the Page</title>
+    <style>
+        .cropresize-selrect {
+            position: absolute;
+            background: #aa0;
+            opacity: 0.5;
+        }
+        .cropresize-side {
+            position: absolute;
+            background: #000;
+            opacity: 0;
+        }
+        .cropresize-side:hover {
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+<br>
+
+<div id="app"></div>
+
+<script src="https://unpkg.com/jquery@3.7.0/dist/jquery.js"></script>
+<script src="https://unpkg.com/bluebird@3.7.2/js/browser/bluebird.js"></script>
+<script src="https://unpkg.com/vue@2.7.14/dist/vue.js"></script>
+<script src="https://unpkg.com/@vbarbarosh/dd@1.3.0/dist/dd.js"></script>
+<script src="helpers.js"></script>
+<script src="components.js"></script>
+<script>
+new Vue({
+    el: '#app',
+    template: `
+        <div class="fix-f hsplit">
+            <div class="w200 flex-row flex-align-stretch blue">
+                <input-files v-model="items" class="flex-fluid" />
+                <button v-on:click="click_crop">crop</button>
+            </div>
+            <div class="fluid flex-col-center">
+                <cropresize v-if="active" v-model="active.crop" v-bind:file="active.file" class="flex-fluid" />
+                <p v-else>Select an image to start editing</p>
+            </div>
+        </div>
+    `,
+    data: {
+        items: [],
+    },
+    computed: {
+        active: function () {
+            return this.items.find(v => v.is_active) || null;
+        },
+    },
+    methods: {
+        click_crop: async function () {
+            for (let i = 0, end = this.items.length; i < end; ++i) {
+                const {crop: {x, y, w, h, ox, oy, zoom}, file} = this.items[i];
+                const img1 = await image_from_url(___img_files.find(v => v.file === file).url);
+                const img2 = await image_crop(img1, (x-ox)/zoom, (y-oy)/zoom, w/zoom, h/zoom);
+                saveBlob(img2);
+            }
+        },
+    },
+});
+</script>
+
+</body>
+</html>
