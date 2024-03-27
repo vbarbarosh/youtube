@@ -1,7 +1,7 @@
 - ✅ dragdrop files
 - ✅ prototype for cropping images
 - ✅ rudimentary ui
-* better design
+- ❇️  better design
 - work on imgeditor
   - add scrollbars
   - add minimap
