@@ -1,6 +1,6 @@
-✅ dragdrop files
-✅ prototype for cropping images
-✅ rudimentary ui
+- ✅ dragdrop files
+- ✅ prototype for cropping images
+- ✅ rudimentary ui
 * better design
 - work on imgeditor
   - add scrollbars
