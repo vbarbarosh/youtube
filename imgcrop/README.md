@@ -16,6 +16,11 @@ new design
 
 - ✅ research
 - ❇️  implement basic functionality of new design
+  - new image should be displayed at center of a window, scaled
+    down, if necessary
+  - if an image is bigger than container - scale it down
+  - add animation for next/prev
+  - add animation for active thumbnail at bottom
 - polish
 
 ![](design/imgcrop1.drawio.svg)
