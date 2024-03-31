@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/reset.css" rel="stylesheet">
+    <link href="https://unpkg.com/@vbarbarosh/smcss@0.8.4/dist/sm.css" rel="stylesheet">
+    <title>Title of the Page</title>
+    <style>
+        .cropresize-selrect {
+            position: absolute;
+            background: #aa0;
+            opacity: 0.5;
+        }
+        .cropresize-side {
+            position: absolute;
+            background: #000;
+            opacity: 0;
+        }
+        .cropresize-side:hover {
+            opacity: 0.4;
+        }
+        .active {
+            box-shadow: 0 0 5px #0f0;
+        }
+        .button-prev,
+        .button-next {
+            color: #ddd;
+            background: rgba(35,35,35,.65);
+        }
+    </style>
+</head>
+<body>
+
+<br>
+
+<div id="app"></div>
+
+<script src="https://unpkg.com/jquery@3.7.0/dist/jquery.js"></script>
+<script src="https://unpkg.com/bluebird@3.7.2/js/browser/bluebird.js"></script>
+<script src="https://unpkg.com/vue@2.7.14/dist/vue.js"></script>
+<script src="https://unpkg.com/@vbarbarosh/dd@1.3.0/dist/dd.js"></script>
+<script src="helpers.js"></script>
+<script src="components.js"></script>
+<script>
+new Vue({
+    el: '#app',
+    template: `
+        <div class="fix-f vsplit">
+            <div class="fluid flex-row-center rel">
+                <button v-on:click="click_prev" class="button-prev xbutton abs-lc z1 white">
+                    <icon-left class="w20 h20 p10 cur-pointer" />
+                </button>
+                <cropresize2 v-if="active" v-model="active.crop" v-bind:file="active.file" class="flex-fluid ww hh dashed" />
+                <p v-else>Select an image to start editing</p>
+                <button v-on:click="click_next" class="button-next xbutton abs-rc z1 white">
+                    <icon-right class="w20 h20 p10 cur-pointer" />
+                </button>
+            </div>
+            <div class="h80 flex-row flex-align-stretch blue">
+                <input-files2 v-model="items" class="flex-fluid" />
+            </div>
+        </div>
+    `,
+    data: {
+        items: [
+        /*
+            {"file":"/img/331013350_8818052911601406_3242148009676376247_n.jpg","is_active":true,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/336913400_129269229967354_7594344136350005967_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337267509_1552688715209057_3395889899665914342_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337293848_1229442544631629_8313649658911418499_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337415545_152884477732931_1567279881741885260_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337416864_247852124333313_1898894435765505079_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337419634_3430737263920596_5385169232238466646_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/337861528_599735622197712_4987109343910905348_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/338207960_948428869911687_2259326874234373603_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/340808785_906357077298011_4906444784752678148_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+        */
+            {"file":"/img/341280202_737993818049555_3232408540086683726_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/341323089_3542972865920961_6760835677459978195_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/341473564_1391072424766714_7043144078519878026_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/341699950_967908304391815_2344295173420153320_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+            {"file":"/img/341844675_241341121784478_7157630035352736494_n.jpg","is_active":false,"crop":{"x":100,"y":100,"w":200,"h":200,"zoom":0.5,"ox":-100,"oy":-100}},
+        ]
+    },
+    computed: {
+        active: function () {
+            return this.items.find(v => v.is_active) || null;
+        },
+    },
+    methods: {
+        click_crop: async function () {
+            for (let i = 0, end = this.items.length; i < end; ++i) {
+                const {crop: {x, y, w, h, ox, oy, zoom}, file} = this.items[i];
+                const img1 = await image_from_url(___img_files.find(v => v.file === file).url);
+                const img2 = await image_crop(img1, (x-ox)/zoom, (y-oy)/zoom, w/zoom, h/zoom);
+                saveBlob(img2);
+            }
+        },
+        click_prev: function () {
+        console.log('click_prev');
+            const i = Math.max(0, this.items.findIndex(v => v.is_active) - 1);
+            this.items.forEach((v,j) => v.is_active = (i === j));
+        },
+        click_next: function () {
+            const i = Math.min(this.items.length - 1, this.items.findIndex(v => v.is_active) + 1);
+            this.items.forEach((v,j) => v.is_active = (i === j));
+        },
+    },
+});
+</script>
+
+</body>
+</html>
