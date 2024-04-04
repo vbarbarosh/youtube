@@ -56,6 +56,8 @@
         return transformationMatrix;
     }
 
+    window.Point = Point;
+    window.getTransformationMatrix = getTransformationMatrix;
     window.convertPointFromPageToNode = function (element, pageX, pageY) {
         return new Point(pageX, pageY, 0).transformBy(getTransformationMatrix(element).inverse());
     };
